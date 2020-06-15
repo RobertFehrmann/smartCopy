@@ -31,6 +31,8 @@ SmartCopy is a set of Snowflake Procedures that handle all of the above challeng
 * Collect metadata information again and compare metadata sets for differences (potential consistency problems)
 * Record metadata information (tables, performed actions, row counts, fingerprints) for auditibility
 
+SmartCopy stores the data for the local copy in a schema with the name of the source schema appended by a version number. The version number consists of two 6 digit number that indicate the structural version (first 6 digits) and the data snapshot version (second 6 digits).   
+
 ### Replication Step
 
 With the ability to create a local copy of a shared dataset, we can replicate the local copy into the VPS deployment via standard Snowflake replication. Details on how to setup replication can be found [here](https://docs.snowflake.com/en/user-guide/database-replication-config.html#). 
@@ -39,7 +41,7 @@ With the ability to create a local copy of a shared dataset, we can replicate th
 
 The local copy of the shared dataset can now be shared to consumer account inside the VPS. For that we have to create a set of secure views pointing to the new local copies of the shared dataset. 
 
-## Implementation
+## Implementation Interface
 
 The whole process of 
 1. creating a local copy
@@ -49,8 +51,38 @@ is supported via stored procedures Snowflake stored procedure
 
 ### SP_COPY
 
+This procedure creates a local copy (target database & schema) of all tables/views inside a shared database (source database and schema). 
+    
+    create or replace procedure SP_COPY(
+       I_SRC_DB VARCHAR       -- Name of the source (shared) database
+       ,I_SRC_SCHEMA VARCHAR  -- Name of the schema in the source database
+       ,I_TGT_DB VARCHAR      -- Name of the target (local) database
+       ,I_TGT_SCHEMA VARCHAR  -- Name of the schema in the taget database
+    )
+    
+### SP_REFRESH
 
+This procedure creates a secure views based re-direction layer to the latest (or a specific) version of the replciated tables. 
 
+    create or replace procedure SP_REFRESH(
+       I_TGT_DB VARCHAR               -- Name of the replicated (secondary) database
+       ,I_TGT_SCHEMA VARCHAR          -- Name of schema in the replicated (secondary) database
+       ,I_SVW_DB VARCHAR              -- Name of the new shared database
+       ,I_SVW_SCHEMA VARCHAR          -- Name of schema in the new shared database
+       ,I_SHARE VARCHAR               -- Name of the Share to be created/used
+       ,I_TGT_SCHEMA_VERSION VARCHAR  -- Target version ("LATEST" or specific Version)
+    )
+    
+### SP_COMPACT
+
+This procedure removes all previous version of the copied data leaving a maximum number of structural version and a maximum number of data snapshot versions.
+
+    create or replace procedure SP_COMPACT(
+       I_TGT_DB VARCHAR                 -- Name of the target (local) database
+       ,I_TGT_SCHEMA VARCHAR            -- Name of the schema in the target (local) database
+       ,I_MAX_SCHEMA_VERSIONS FLOAT     -- Maximum number of versions with different object structures
+       ,I_MAX_VERSIONS_PER_SCHEMA FLOAT -- Maximum number of data snapshot versions in the same structural version
+    )
 
 ## Setup
 
@@ -101,8 +133,15 @@ The following steps need to be executed for every database
     create database <local database>;
     grant all on database <local db> to role smart_copy_rl;
     ```
-1. Run the copy statement 
+1. Run the copy command 
     ```
     use role smart_copy_rl;
-    call smart_copy_db.metadata.sp_copy(<source db>,<source schema>,<local db>,<local schema>);
+    call smart_copy_db.metadata.sp_copy(<shared db>,<shared schema>,<local db>,<local schema>);
     ```
+1. Run the refresh command
+    ```
+    use role smart_copy_rl;
+    call smart_copy_db.metadata.sp_refresh(<local db>,<local schema>,<new shared db>,<new shared schema>,<new share>,<target version>);
+    ```
+
+
