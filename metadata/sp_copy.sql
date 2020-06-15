@@ -1,4 +1,9 @@
-create procedure METADATA.SP_COPY(I_SRC_DB VARCHAR, I_SRC_SCHEMA VARCHAR, I_TGT_DB VARCHAR, I_TGT_SCHEMA VARCHAR)
+create or replace procedure SP_COPY(
+    I_SRC_DB VARCHAR       -- Name of the source (shared) database
+    ,I_SRC_SCHEMA VARCHAR  -- Name of the schema in the source database
+    ,I_TGT_DB VARCHAR      -- Name of the target (local) database
+    ,I_TGT_SCHEMA VARCHAR  -- Name of the schema in the taget database
+)
     returns ARRAY
     language JAVASCRIPT
     execute as caller
@@ -834,5 +839,4 @@ catch (err) {
     return return_array;
 }
 $$;
-
 

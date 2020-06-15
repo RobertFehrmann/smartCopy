@@ -1,5 +1,9 @@
-create procedure METADATA.SP_COMPACT(I_TGT_DB VARCHAR, I_TGT_SCHEMA VARCHAR, I_MAX_SCHEMA_VERSIONS FLOAT,
-                                     I_MAX_VERSIONS_PER_SCHEMA FLOAT)
+create or replace procedure SP_COMPACT(
+    I_TGT_DB VARCHAR                 -- Name of the target (local) database
+    ,I_TGT_SCHEMA VARCHAR            -- Name of the schema in the target (local) database
+    ,I_MAX_SCHEMA_VERSIONS FLOAT     -- Maximum number of versions with different object structures
+    ,I_MAX_VERSIONS_PER_SCHEMA FLOAT -- Maximum number of data snapshot versions in the same structural version
+)
     returns ARRAY
     language JAVASCRIPT
     execute as caller
@@ -134,5 +138,3 @@ catch (err) {
     return return_array;
 }
 $$;
-
-

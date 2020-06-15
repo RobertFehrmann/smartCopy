@@ -1,5 +1,11 @@
-create procedure METADATA.SP_REFRESH(I_TGT_DB VARCHAR, I_TGT_SCHEMA VARCHAR, I_SVW_DB VARCHAR, I_SHARE VARCHAR,
-                                     I_TGT_SCHEMA_VERSION VARCHAR)
+create or replace procedure SP_REFRESH(
+    I_TGT_DB VARCHAR               -- Name of the replicated (secondary) database
+    ,I_TGT_SCHEMA VARCHAR          -- Name of schema in the replicated (secondary) database
+    ,I_SVW_DB VARCHAR              -- Name of the new shared database
+    ,I_SVW_SCHEMA VARCHAR          -- Name of schema in the new shared database
+    ,I_SHARE VARCHAR               -- Name of the Share to be created/used
+    ,I_TGT_SCHEMA_VERSION VARCHAR  -- Target version ("LATEST" or specific Version)
+)
     returns ARRAY
     language JAVASCRIPT
     execute as caller
@@ -224,5 +230,3 @@ catch (err) {
     return return_array;
 }
 $$;
-
-
