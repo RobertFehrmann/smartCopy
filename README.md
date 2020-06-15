@@ -1,12 +1,14 @@
 # smartCopy - Consuming Shared Data in a Virtual Private Snowflake Account 
 
-## Motivation
+## Overview
 
 Snowflake has an amazing feature called [Secure Data Sharing](https://www.snowflake.com/use-cases/modern-data-sharing/). With Snowflake Secure Data Sharing, two account in the same cloud region with the same CSP (Cloud Service Provider) can share live data in an instant and secure way. Data Sharing is possible because of Snowflakes unique architecture, that separates storage and compute. Because of this architecture, a data provider can configure access to it's data by creating a share. Think of it as a collection of all the necessary metadata, for instance, names of shared objects, location of the data files, how to decrypt the files, and so on. However, data can only be shared between two Snowflake accounts the exist in the same Region and the same CSP. Sharing Data between accounts in different regions with the same CSP, or account with different CSPs (even in the same geographical region), require data to be replicated. Please review the [documentation](https://docs.snowflake.com/en/user-guide/secure-data-sharing-across-regions-plaforms.html) for more details. 
 
-By design - in particular to satisfy security requirements - , a [Virtual Private Snowflake](https://docs.snowflake.com/en/user-guide/intro-editions.html#virtual-private-snowflake-vps) a VPS is considered its own region. For that reason, sharing data into a VPS Account requires the data from the provider side to be replicated into the VPS account.
+By design, a [Virtual Private Snowflake](https://docs.snowflake.com/en/user-guide/intro-editions.html#virtual-private-snowflake-vps) a VPS is considered its own region. For that reason, sharing data into a VPS Account requires the data from the provider side to be replicated into the VPS account. Then we can share the local copy of the dataset inside VPS by creating a local share.
 
-As mentioned in the documentation above, a database craeted from a share can not be used as a source for replication. Only a database that is "local" to the current account can be replicated. Therefore, if we want to consume shared data in a VPS account, we first have to create a local copy of the shared dataset and then we can replicate that local copy into the VPS account. On the surface, creating a local copy seems to be very straight forward. 
+### Copy Step
+
+As mentioned in the documentation above, a database created from a share can not be used as a source for replication. Only a database that is "local" to the current account can be replicated. Therefore, if we want to consume shared data in a VPS account, we first have to create a local copy of the shared dataset and then we can replicate that local copy into the VPS account. On the surface, creating a local copy seems to be very straight forward. 
 
 * create a local table via a CTAS (CREATE TABLE AS) statement into a new schema in a new database
 * replicate that local database into the VPS account
@@ -29,7 +31,26 @@ SmartCopy is a set of Snowflake Procedures that handle all of the above challeng
 * Collect metadata information again and compare metadata sets for differences (potential consistency problems)
 * Record metadata information (tables, performed actions, row counts, fingerprints) for auditibility
 
-## Stored Procedures
+### Replication Step
+
+With the ability to create a local copy of a shared dataset, we can replicate the local copy into the VPS deployment via standard Snowflake replication. Details on how to setup replication can be found [here](https://docs.snowflake.com/en/user-guide/database-replication-config.html#). 
+
+### Sharing Step 
+
+The local copy of the shared dataset can now be shared to consumer account inside the VPS. For that we have to create a set of secure views pointing to the new local copies of the shared dataset. 
+
+## Implementation
+
+The whole process of 
+1. creating a local copy
+1. sharing the replicated copy inside VPS
+
+is supported via stored procedures Snowflake stored procedure
+
+### SP_COPY
+
+
+
 
 ## Setup
 
