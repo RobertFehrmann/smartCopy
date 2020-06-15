@@ -111,7 +111,7 @@ This procedure removes all previous version of the copied data leaving a maximum
     use role smart_copy_rl;
     create schema smart_copy_db.metadata; 
     ```
-1. Create all procedures from the metadata directory inside the cloned repo by loading each file into a worksheet and then clicking `Run`. Note: if you are getting an error message, try to move the cursor to the end of the file and click `Run` again)
+1. Create all procedures from the metadata directory inside the cloned repo by loading each file into a worksheet and then clicking `Run`. Note: if you are getting an error message (SQL compilation error: parse ...), move the cursor to the end of the file, click into the window, and then click `Run` again)
 
 ## Operations
 
