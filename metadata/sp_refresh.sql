@@ -1,10 +1,9 @@
 create or replace procedure SP_REFRESH(
     I_TGT_DB VARCHAR               -- Name of the replicated (secondary) database
-    ,I_TGT_SCHEMA VARCHAR          -- Name of schema in the replicated (secondary) database
     ,I_SVW_DB VARCHAR              -- Name of the new shared database
-    ,I_SVW_SCHEMA VARCHAR          -- Name of schema in the new shared database
+    ,I_SCHEMA VARCHAR              -- Name of schema in the replicated (secondary) database
+    ,I_SCHEMA_VERSION VARCHAR      -- Target version ("LATEST" or specific Version)
     ,I_SHARE VARCHAR               -- Name of the Share to be created/used
-    ,I_TGT_SCHEMA_VERSION VARCHAR  -- Target version ("LATEST" or specific Version)
 )
     returns ARRAY
     language JAVASCRIPT
@@ -14,9 +13,9 @@ $$
 //note:  this proc returns an array, either success or fail right now
 const tgt_db  = I_TGT_DB;
 const svw_db  = I_SVW_DB;
-const tgt_schema  = I_TGT_SCHEMA;
+const tgt_schema  = I_SCHEMA;
 const share = I_SHARE;
-const tgt_schema_version = I_TGT_SCHEMA_VERSION
+const tgt_schema_version = I_SCHEMA_VERSION
 
 const internal = "INTERNAL_";
 const tgt_meta_schema = tgt_schema + "_METADATA";
@@ -230,3 +229,4 @@ catch (err) {
     return return_array;
 }
 $$;
+

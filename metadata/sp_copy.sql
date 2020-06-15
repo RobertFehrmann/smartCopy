@@ -1,8 +1,7 @@
 create or replace procedure SP_COPY(
-    I_SRC_DB VARCHAR       -- Name of the source (shared) database
-    ,I_SRC_SCHEMA VARCHAR  -- Name of the schema in the source database
-    ,I_TGT_DB VARCHAR      -- Name of the target (local) database
-    ,I_TGT_SCHEMA VARCHAR  -- Name of the schema in the taget database
+   I_SRC_DB VARCHAR  -- Name of the source (shared) database
+   ,I_TGT_DB VARCHAR -- Name of the target (local) database
+   ,I_SCHEMA VARCHAR -- Name of the schema
 )
     returns ARRAY
     language JAVASCRIPT
@@ -13,8 +12,8 @@ $$
 
 const src_db  = I_SRC_DB;
 const tgt_db  = I_TGT_DB;
-const src_schema  = I_SRC_SCHEMA;
-const tgt_schema  = I_TGT_SCHEMA;
+const src_schema  = I_SCHEMA;
+const tgt_schema  = I_SCHEMA;
 
 const internal = "INTERNAL_";
 const tgt_meta_schema = tgt_schema + "_METADATA";
