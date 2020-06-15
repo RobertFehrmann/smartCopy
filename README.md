@@ -54,10 +54,9 @@ is supported via stored procedures Snowflake stored procedure
 This procedure creates a local copy (target database & schema) of all tables/views inside a shared database (source database and schema). 
     
     create or replace procedure SP_COPY(
-       I_SRC_DB VARCHAR       -- Name of the source (shared) database
-       ,I_SRC_SCHEMA VARCHAR  -- Name of the schema in the source database
-       ,I_TGT_DB VARCHAR      -- Name of the target (local) database
-       ,I_TGT_SCHEMA VARCHAR  -- Name of the schema in the taget database
+       I_SRC_DB VARCHAR  -- Name of the source (shared) database
+       ,I_TGT_DB VARCHAR -- Name of the target (local) database
+       ,I_SCHEMA VARCHAR -- Name of the schema
     )
     
 ### SP_REFRESH
@@ -66,11 +65,10 @@ This procedure creates a secure views based re-direction layer to the latest (or
 
     create or replace procedure SP_REFRESH(
        I_TGT_DB VARCHAR               -- Name of the replicated (secondary) database
-       ,I_TGT_SCHEMA VARCHAR          -- Name of schema in the replicated (secondary) database
        ,I_SVW_DB VARCHAR              -- Name of the new shared database
-       ,I_SVW_SCHEMA VARCHAR          -- Name of schema in the new shared database
+       ,I_SCHEMA VARCHAR              -- Name of schema in the replicated (secondary) database
+       ,I_SCHEMA_VERSION VARCHAR      -- Target version ("LATEST" or specific Version)
        ,I_SHARE VARCHAR               -- Name of the Share to be created/used
-       ,I_TGT_SCHEMA_VERSION VARCHAR  -- Target version ("LATEST" or specific Version)
     )
     
 ### SP_COMPACT
@@ -113,7 +111,7 @@ This procedure removes all previous version of the copied data leaving a maximum
     use role smart_copy_rl;
     create schema smart_copy_db.metadata; 
     ```
-1. Create all procedures from the metadata directory inside the cloned repo by loading each file into a worksheet and then clicking `Run`. Note: if you are getting an error message, try to move the cursor to the end of the file and click `Run` again)
+1. Create all procedures from the metadata directory inside the cloned repo by loading each file into a worksheet and then clicking `Run`. Note: if you are getting an error message (SQL compilation error: parse ...), move the cursor to the end of the file, click into the window, and then click `Run` again)
 
 ## Operations
 
@@ -131,17 +129,17 @@ The following steps need to be executed for every database
     use role AccountAdmin;
     drop database if exists <local db>;
     create database <local database>;
-    grant all on database <local db> to role smart_copy_rl;
+    grant all on database <local db> to role smart_copy_rl with grant option;
     ```
 1. Run the copy command 
     ```
     use role smart_copy_rl;
-    call smart_copy_db.metadata.sp_copy(<shared db>,<shared schema>,<local db>,<local schema>);
+    call smart_copy_db.metadata.sp_copy(<shared db>,<local db>,<schema>);
     ```
 1. Run the refresh command
     ```
     use role smart_copy_rl;
-    call smart_copy_db.metadata.sp_refresh(<local db>,<local schema>,<new shared db>,<new shared schema>,<new share>,<target version>);
+    call smart_copy_db.metadata.sp_refresh(<local db>,<new shared db>,<schema>,<schema version>,<new share>);
     ```
 
 
