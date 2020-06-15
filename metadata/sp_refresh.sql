@@ -130,7 +130,7 @@ function grant_schema( i_src_schema_name, i_tgt_schema_name, i_reference_type) {
 try {
 
     snowflake.execute({sqlText: "CREATE SHARE IF NOT EXISTS \"" + share + "\""});
-    snowflake.execute({sqlText: "CREATE DATABASE IF NOT EXISTS \"" + svw_db + "\""});
+    // snowflake.execute({sqlText: "CREATE DATABASE IF NOT EXISTS \"" + svw_db + "\""});
     snowflake.execute({sqlText: "CREATE SCHEMA IF NOT EXISTS \"" + svw_db + "\".\"" + meta_schema + "\""});
     snowflake.execute({sqlText: "CREATE SCHEMA IF NOT EXISTS \"" + svw_db + "\".\"" + tgt_meta_schema + "\""});
     snowflake.execute({sqlText: "CREATE SCHEMA IF NOT EXISTS \"" + svw_db + "\".\"" + tgt_schema + "\""});
