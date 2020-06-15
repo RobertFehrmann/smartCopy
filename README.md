@@ -129,7 +129,7 @@ The following steps need to be executed for every database
     use role AccountAdmin;
     drop database if exists <local db>;
     create database <local database>;
-    grant all on database <local db> to role smart_copy_rl;
+    grant all on database <local db> to role smart_copy_rl with grant option;
     ```
 1. Run the copy command 
     ```
