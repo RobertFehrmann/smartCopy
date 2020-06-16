@@ -83,6 +83,9 @@ This procedure removes all previous version of the copied data leaving a maximum
 
 ## Setup
 
+SmartCopy is a set of Snowflake stored procedures that are being installed in a central repository database. Though all operations can be performed by using the AccountAdmin role, it considered best practice to follow the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege). Therefore, the instructions below show how to create a custom role `smart_copy_rl` and assign the necessary permissions to that role. Of course, we need a privileged role to create `smart_copy_rl` and assign the required permissions. From thereon forward, a privileged role will only be needed to create the source database (from share) and target database (local), or permissions to import a share and to create a database have been assigned to `smart_copy_rl` as well.
+
+
 1. Clone the SmartCopy repo (use the command below or any other way to clone the repo)
     ```
     git clone https://github.com/RobertFehrmann/smartCopy.git
@@ -104,6 +107,11 @@ This procedure removes all previous version of the copied data leaving a maximum
        AUTO_RESUME = TRUE;
     grant all on warehouse smart_copy_vwh to role smart_copy_rl;
     ``` 
+1. Grant additional permissions ***(optional)***
+    ```
+    grant create database on account to role smart_copy_rl;
+    grant import share on account to role smart_copy_rl;
+    ```
 1. Grant smart_copy_rl to the appropriate user (login). Replace `<user>` with the user you want to use for smart_copy. Generally speaking, this should be the user you are connected with right now.
     ```
     grant role smart_copy_rl to user <user>;
@@ -111,11 +119,11 @@ This procedure removes all previous version of the copied data leaving a maximum
     create schema smart_copy_db.metadata; 
     ```
 1. Create all procedures from the metadata directory inside the cloned github repo by loading each file into a worksheet and then executing the statement. 
-***Note: if you are getting an error message (SQL compilation error: parse ...), move the cursor to the end of the file (right after the semicolon), and click `Run`)
+***Note: If you are getting an error message (SQL compilation error: parse ...), move the cursor to the end of the worksheet (right after the semicolon), and click `Run`***
 
 ## Operations
 
-The following steps need to be executed for every database managed by smartCopy. 
+Each shared database managed by SmartCopy needs to be configured. In case the optional permissions have been granted to role `smart_copy_rl`, all steps can be performed using role `smart_copy_rl`. Otherwise, source and target database need to be created by a privileged role and the necessary permissions have to be granted to role `smart_copy_rl`.
 
 1. Create the source database from the share and grant the necessary permission to the role smart_copy_rl.
     ```
