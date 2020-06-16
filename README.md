@@ -87,10 +87,13 @@ SmartCopy is a set of Snowflake stored procedures that are being installed in a 
 
 
 1. Clone the SmartCopy repo (use the command below or any other way to clone the repo)
+
     ```
     git clone https://github.com/RobertFehrmann/smartCopy.git
     ```   
+    
 1. SmartCopy requires permissions to create a share and read/write access to a database the hosts the SmartCopy code library. Though the AccountAdmin role provides the necessary permissions, its best practice to follow the principle of least permissions. For that, we create a custom role, called `smart_copy_rl`.
+
     ``` 
     use role AccountAdmin;
     drop role if exists smart_copy_rl;
@@ -107,17 +110,22 @@ SmartCopy is a set of Snowflake stored procedures that are being installed in a 
        AUTO_RESUME = TRUE;
     grant all on warehouse smart_copy_vwh to role smart_copy_rl;
     ``` 
+    
 1. Grant additional permissions ***(optional)***
+
     ```
     grant create database on account to role smart_copy_rl;
     grant import share on account to role smart_copy_rl;
     ```
+    
 1. Grant smart_copy_rl to the appropriate user (login). Replace `<user>` with the user you want to use for smart_copy. Generally speaking, this should be the user you are connected with right now.
+
     ```
     grant role smart_copy_rl to user <user>;
     use role smart_copy_rl;
     create schema smart_copy_db.metadata; 
     ```
+    
 1. Create all procedures from the metadata directory inside the cloned github repo by loading each file into a worksheet and then executing the statement. 
 ***Note: If you are getting an error message (SQL compilation error: parse ...), move the cursor to the end of the worksheet (right after the semicolon), and click `Run`***
 
@@ -126,25 +134,32 @@ SmartCopy is a set of Snowflake stored procedures that are being installed in a 
 Each shared database managed by SmartCopy needs to be configured. In case the optional permissions have been granted to role `smart_copy_rl`, all steps can be performed using role `smart_copy_rl`. Otherwise, source and target database need to be created by a privileged role and the necessary permissions have to be granted to role `smart_copy_rl`.
 
 1. Create the source database from the share and grant the necessary permission to the role smart_copy_rl.
+
     ```
     use role AccountAdmin;
     drop database if exists <source db>;
     create database <source db> from share <provider account>.<source db>;
     grant imported privileges on database <source db> to role smart_copy_rl;
     ```
+    
 1. Create the target (local) database, and grant the necessary permission to role smart_copy_rl.
+
     ```
     use role AccountAdmin;
     drop database if exists <local db>;
     create database <local database>;
     grant all on database <local db> to role smart_copy_rl with grant option;
     ```
+    
 1. Run the copy command 
+
     ```
     use role smart_copy_rl;
     call smart_copy_db.metadata.sp_copy(<shared db>,<local db>,<schema>);
     ```
+    
 1. Run the refresh command to create the new share inside VPS.
+
     ```
     use role smart_copy_rl;
     call smart_copy_db.metadata.sp_refresh(<local db>,<new shared db>,<schema>,<schema version>,<new share>);
